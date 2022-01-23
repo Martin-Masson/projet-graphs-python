@@ -56,4 +56,14 @@ class open_digraph:  # for open directed graph
                 l.append(get_node_by_id(id))
             return l
         def new_id():
-            return 
+            return max(get_node_ids()) + 1
+
+        def add_edge(self, src, tgt):
+            n = self.nodes[src]
+            if n.parents.has_key(tgt):
+                n.parents[tgt] += 1
+            else :
+                n.parents[tgt] = 1
+        
+        def add_node(self, label='', parents=, children=):
+            
