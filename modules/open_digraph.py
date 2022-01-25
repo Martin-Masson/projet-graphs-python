@@ -39,11 +39,11 @@ class node:
     def set_label(self, label):
         self.label = label
 
-    def set_parent_ids(self, parent_ids, parents_multi=[1]*len(parent_ids)):
-        self.parents = {parent_id: multi for parent_id, multi in zip(parent_ids, parents_multi)}
+    def set_parent_ids(self, parents):
+        self.parents = parents
 
-	def set_children_ids(self, children_ids, children_multi=[1]*len(children_ids)):
-		self.children = {children_id: multi for children_id, multi in zip(children_ids, children_multi)}
+	def set_children_ids(self, children):
+		self.children = children
 	
 	def add_child_id(self, new_child_id, multi=1):
         self.children[new_child_id] = multi
@@ -148,13 +148,11 @@ class open_digraph:  # for open directed graph
 			tgt_node.parents[src] = 1
 			src_node.children[tgt] = 1
 
-    def add_node(self, label='', parents, children, parents_multi=[1]*len(parents), children_multi=[1]*len(children)):
+    def add_node(self, label='', parents, children):
 		node_id = self.new_id()
-		new_node = node(node_id, label,
-						{parent_id: multi for parent_id, multi in zip(parents, parents_multi)},
-						{children_id: multi for children_id, multi in zip(children, children_multi)})
+		new_node = node(node_id, label, parents, children)
 		self.nodes[node_id] = new_node
-		for parent, children in zip(parents, childrens):
+		for parent, child in zip(parents.keys(), childrens.keys()):
 			self.add_edge(parent, node_id)
 			self.add_edge(node_id, children)
 
