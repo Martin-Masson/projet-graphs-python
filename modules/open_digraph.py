@@ -51,6 +51,24 @@ class node:
 	def add_parent_id(self, new_parent_id, multi=1):
         self.children[new_parent_id] = multi
 
+    def remove_parent_once(self, id):
+        if self.parents[id] < 2:
+             del self.parents[id]
+        else:
+            self.parents[id] -= 1
+
+    def remove_child_once(self, id):
+        if self.children[id] < 2:
+             del self.children[id]
+        else:
+            self.children[id] -= 1
+    
+    def remove_parent_id(self, id):
+        del self.parents[id]
+    
+    def remove_child_id(self, id):
+        del self.children[id]
+
 
 class open_digraph:  # for open directed graph
 	
@@ -139,3 +157,6 @@ class open_digraph:  # for open directed graph
 		for parent, children in zip(parents, childrens):
 			self.add_edge(parent, node_id)
 			self.add_edge(node_id, children)
+
+    def remove_edge(self, src, tgt):
+        
