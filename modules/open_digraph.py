@@ -46,10 +46,10 @@ class Node:
 	def set_children_ids(self, children: Dict[int, int]) -> None:
 		self.children = children
 	
-	def add_child_id(self, new_child_id: int, multi=1) -> None:
+	def add_child_id(self, new_child_id: int, multi:int = 1) -> None:
         self.children[new_child_id] = multi
 	
-	def add_parent_id(self, new_parent_id: int , multi=1) -> None:
+	def add_parent_id(self, new_parent_id: int , multi:int = 1) -> None:
         self.parents[new_parent_id] = multi
 
     def remove_parent_once(self, parent_id: int) -> None:
