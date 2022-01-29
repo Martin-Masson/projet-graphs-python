@@ -1,12 +1,13 @@
 class Node:
 
     def __init__(self, identity: int, label: str, parents: Dict[int, int], children: Dict[int, int]) -> Node:
-        '''
+        """
         identity: int; its unique id in the graph
         label: string;
         parents: int->int dict; maps a parent node's id to its multiplicity
         children: int->int dict; maps a child node's id to its multiplicity
-        '''
+        """
+
         self.id = identity
         self.label = label
         self.parents = parents
@@ -49,7 +50,7 @@ class Node:
         self.children[new_child_id] = multi
 	
 	def add_parent_id(self, new_parent_id: int , multi=1) -> None:
-        self.children[new_parent_id] = multi
+        self.parents[new_parent_id] = multi
 
     def remove_parent_once(self, parent_id: int) -> None:
         if self.parents[parent_id] > 1:
@@ -57,26 +58,27 @@ class Node:
         else:
             del self.parents[parent_id]
 
-    def remove_child_once(self, children_id: int) -> None:
-        if self.children[children_id] > 2:
-            self.children[children_id] -= 1
+    def remove_child_once(self, child_id: int) -> None:
+        if self.children[child_id] > 2:
+            self.children[child_id] -= 1
         else:
-            del self.children[children_id]
+            del self.children[child_id]
     
     def remove_parent_id(self, parent_id: int) -> None:
         del self.parents[parent_id]
     
-    def remove_child_id(self, children_id: int) -> None:
-        del self.children[children_id]
+    def remove_child_id(self, child_id: int) -> None:
+        del self.children[child_id]
 
 class OpenDigraph:  # for open directed graph
 	
     def __init__(self, inputs: List[int], outputs: List[int], nodes: Dict[int, Node]) -> OpenDigraph:
-        '''
+        """
         inputs: int list; the ids of the input nodes
         outputs: int list; the ids of the output nodes
         nodes: node iter;
-        '''
+        """
+
         self.inputs = inputs
         self.outputs = outputs
         self.nodes = {node.id: node for node in nodes}
@@ -146,13 +148,13 @@ class OpenDigraph:  # for open directed graph
 			tgt_node.parents[src] = 1
 			src_node.children[tgt] = 1
 
-    def add_node(self, label='', parents: Dict[int, int], children: Dict[int, int]) -> None:
+    def add_node(self, label:str = '', parents: Dict[int, int] = {}, children: Dict[int, int] = {}) -> None:
 		node_id = self.new_id()
 		new_node = Node(node_id, label, parents, children)
 		self.nodes[node_id] = new_node
 		for parent, child in zip(parents.keys(), childrens.keys()):
 			self.add_edge(parent, node_id)
-			self.add_edge(node_id, children)
+			self.add_edge(node_id, child)
 
     # *args are tuples (src, tgt)
     def remove_edges(self, *args: Tuple[int, int]) -> None:
@@ -226,3 +228,22 @@ class OpenDigraph:  # for open directed graph
                 parents = get_node_by_id(parent_id).parents
                 if not(node.id in parents) or not(multi == parents[node.id]):
                     raise Exception(f"node {child_id} isn't a child of node {node_id} or their multiplicity are different")
+
+    def add_input_node(self, child_id: int) -> None:
+        if child_id in self.inputs:
+            raise Exception(f"the node of id {child_id} is already an input")
+        node_id = self.new_id()
+		new_node = Node(node_id, '', {}, {child_id: 1})
+        self.nodes[node_id] = new_node
+        self.add_input_id(node_id)
+        self.add_edge(node_id, child_id)
+        
+
+    def add_output_node(self, parent_id: int) -> None:
+        if parent_id in self.outputs:
+            raise Exception(f"the node of id {parent_id} is already an output")
+        node_id = self.new_id()
+		new_node = Node(node_id, '', {parent_id: 1}, {})
+        self.nodes[node_id] = new_node
+        self.add_output_id(node_id)
+        self.add_edge(parent_id, node_id)
