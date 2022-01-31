@@ -274,35 +274,30 @@ class OpenDigraph:  # for open directed graph
             tgt_id = arg
             tgt_node = self.get_node_by_id(tgt_id)
 
-            for parent in tgt_node.parents:
-                # Removing the node from the parent node's children
-                self.get_node_by_id(parent).remove_child_id(tgt_id)
+            for parent_id in tgt_node.get_parent_ids():
+                self.remove_parallel_edges((parent_id, tgt_id))
 
                 # If the parent is an input removes it from the open digraph and its id from the inputs
                 # to keep it well formed otherwise the input node would be left with no child
-                if parent in self.inputs:
-                    self.nodes.pop(parent)
-                    self.inputs.remove(parent)
+                if parent_id in self.inputs:
+                    self.nodes.pop(parent_id)
+                    self.inputs.remove(parent_id)
 
-            for child in tgt_node.children:
-                # Removing the node from the child node's parents
-                self.get_node_by_id(child).remove_parent_id(tgt_id)
+            for child_id in tgt_node.get_children_ids():
+                self.remove_parallel_edges((tgt_id, child_id))
 
                 # If the child is an output removes it from the open digraph and its id from the outputs
                 # to keep it well formed otherwise the output node would be left with no parent
-                if child in self.outputs:
-                    self.nodes.pop(child)
-                    self.inputs.remove(child)
+                if child_id in self.outputs:
+                    self.nodes.pop(child_id)
+                    self.inputs.remove(child_id)
 
-            # If the target node is an input removes its id from the inputs
             if tgt_id in self.inputs:
                 self.inputs.remove(tgt_id)
 
-            # If the target node is an ouput removes its id from the outputs
             if tgt_id in self.outputs:
                 self.outputs.remove(tgt_id)
 
-            # Removes the node from the open digraph
             self.nodes.pop(tgt_id)
 
     def is_well_formed(self) -> None:
@@ -393,7 +388,8 @@ class OpenDigraph:  # for open directed graph
         Raises
         ------
         Exception
-            Raises an exception if the target parent node is already an output or isn't in the open digraph"""
+            Raises an exception if the target parent node is already an output or isn't in the open digraph
+        """
         if parent_id in self.outputs:
             raise Exception(f"the target node of id {parent_id} is already an output")
         if not (parent_id in self.nodes):
