@@ -1,5 +1,7 @@
 from __future__ import annotations
 from lib2to3.pgen2.token import OP
+from msilib.schema import Component
+from tkinter import N
 from typing import Dict, List, Tuple
 import itertools
 import sys
@@ -626,7 +628,35 @@ class OpenDigraph:  # for open directed graph
         return output
     
 
-
+    def dfs(self,visited, node, component):
+        if node not in visited:
+            visited.add(node)
+            component.append(node.id)
+            voisins = node.get_parent_ids() + node.get_children_ids()
+            for voisin in voisins:
+                self.dfs(visited,self.get_node_by_id(voisin),component)
+    
+    
+    def connected_components_v2(self):
+        visited = set()
+        output = {}
+        components = []
+        for id in self.inputs:
+            node = self.get_node_by_id(id)
+            l = []
+            self.dfs(visited, node, l)
+            components.append(l)
+        components = list(filter(lambda a: a != [], components))
+        nb_component = len(components)
+        k = 0
+        for component in components:
+            component.sort()
+            for id in component:
+                output[id] = k
+            k += 1
+        return nb_component,output
+    
+    '''
     def connected_components_v1(self):
         mat = self.adjency_matrix()
         output = {}
@@ -646,18 +676,6 @@ class OpenDigraph:  # for open directed graph
             components.append([current_id])
             
             components[i].append([input_id])
-            
 
-
-    def connected_components_v2(self):
-        mat = self.adjency_matrix()
-        output = {}
-        components = {}
-        for i in range(len(mat)):
-            for j in range(len(mat)):
-                if mat[i][j] != 0:
-                    components.append({i,j})
-                for k in (len(components)-1):
-                    if not(components[k].isdisjoint(components[k+1])):
-                        components[k].update(components[k+1])
-                        components.discard(components[k+1])
+    def dijkstra( src, direction=None) :
+        '''
