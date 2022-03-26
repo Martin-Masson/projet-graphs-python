@@ -1,137 +1,26 @@
 from __future__ import annotations
-from lib2to3.pgen2.token import OP
-from msilib.schema import Component
-from tkinter import N
 from typing import Dict, List, Tuple
+from copy import deepcopy
 import itertools
 import sys
 import os
 
 root = os.path.normpath(os.path.join(__file__, "./../.."))
 sys.path.append(root)
-from modules.matrix import *
+
+from modules.node import *
+from modules.exception import *
+from modules.open_digraph_mx.matrix_mx import *
+from modules.open_digraph_mx.display_mx import *
+from modules.open_digraph_mx.bool_circ_mx import *
+from modules.open_digraph_mx.depth_mx import *
 
 Matrix = List[List[int]]
 
-class Node:
-    def __init__(
-        self,
-        identity: int,
-        label: str,
-        parents: Dict[int, int],
-        children: Dict[int, int],
-    ) -> Node:
-        """
-        identity: int; its unique id in the graph
-        label: string;
-        parents: int->int dict; maps a parent node's id to its multiplicity
-        children: int->int dict; maps a child node's id to its multiplicity
-        """
 
-        self.id = identity
-        self.label = label
-        self.parents = parents
-        self.children = children
-
-    def __str__(self) -> str:
-        return (
-            "Node("
-            + str(self.id)
-            + ", "
-            + self.label
-            + ", "
-            + str(self.parents)
-            + ", "
-            + str(self.children)
-            + ")"
-        )
-
-    def __repr__(self) -> str:
-        return str(self)
-
-    def copy(self) -> Node:
-        """Returns a copy of the node"""
-        return Node(self.id, self.label, self.parents, self.children)
-
-    def get_id(self) -> int:
-        """Returns the id of the node"""
-        return self.id
-
-    def get_label(self) -> str:
-        """Returns the label of the node"""
-        return self.label
-
-    def get_parent_ids(self) -> List[int]:
-        """Returns a list of the ids of all the parents of the node"""
-        return list(self.parents.keys())
-
-    def get_children_ids(self) -> List[int]:
-        """Returns a list of the ids of all the children of the node"""
-        return list(self.children.keys())
-
-    def set_id(self, new_id: int) -> None:
-        """Sets the id of the node to new_id"""
-        self.id = new_id
-
-    def set_label(self, new_label: str) -> None:
-        """Sets the label of the node to new_label"""
-        self.label = new_label
-
-    def set_parent_ids(self, new_parents: Dict[int, int]) -> None:
-        """Sets the parents of the node to new_parents"""
-        self.parents = new_parents
-
-    def set_children_ids(self, new_children: Dict[int, int]) -> None:
-        """Sets the children of the node to new_children"""
-        self.children = new_children
-
-    def add_child_id(self, new_child_id: int, multi: int = 1) -> None:
-        """Adds a new child to the node of id new_child_id and multiplicty multi (default is 1)"""
-        self.children[new_child_id] = multi
-
-    def add_parent_id(self, new_parent_id: int, multi: int = 1) -> None:
-        """Adds a new parent to the node of id new_parent_id and multiplicty multi (default is 1)"""
-        self.parents[new_parent_id] = multi
-
-    def remove_parent_once(self, parent_id: int) -> None:
-        """Reduces by 1 the multiplicty of the node's parent of id parent_id or removes it if the multiplicity was 1"""
-        if self.parents[parent_id] > 1:
-            self.parents[parent_id] -= 1
-        else:
-            del self.parents[parent_id]
-
-    def remove_child_once(self, child_id: int) -> None:
-        """Reduces by 1 the multiplicty of the node's child of id child_id or removes it if the multiplicity was 1"""
-        if self.children[child_id] > 2:
-            self.children[child_id] -= 1
-        else:
-            del self.children[child_id]
-
-    def remove_parent_id(self, parent_id: int) -> None:
-        """Removes the parent of id parent_id from the node's parents"""
-        del self.parents[parent_id]
-
-    def remove_child_id(self, child_id: int) -> None:
-        """Removes the child of id child_id from the node's children"""
-        del self.children[child_id]
-
-    def in_degree(self) -> int:
-        degree = 0
-        for parent_id in self.parents:
-            degree += self.parents[parent_id]
-        return degree
-        
-    def out_degree(self) -> int:
-        degree = 0
-        for child_id in self.children:
-            degree += self.children[child_id]
-        return degree
-    
-    def degree(self) -> int:
-        return self.out_degree() + self.in_degree()
-    
-
-class OpenDigraph:  # for open directed graph
+class OpenDigraph(
+    matrix_mx, display_mx, bool_circ_mx, depth_mx
+):  # for open directed graph
     def __init__(
         self, inputs: List[int], outputs: List[int], nodes: List[Node]
     ) -> OpenDigraph:
@@ -144,6 +33,9 @@ class OpenDigraph:  # for open directed graph
         self.inputs = inputs
         self.outputs = outputs
         self.nodes = {node.id: node for node in nodes}
+
+    def __getitem__(self, node_id) -> Node:
+        return self.nodes[node_id]
 
     def __str__(self) -> str:
         output = ""
@@ -160,7 +52,9 @@ class OpenDigraph:  # for open directed graph
         return cls([], [], [])
 
     @classmethod
-    def random(cls, n: int, bound: int, inputs: int = 0, outputs: int = 0, form: str = "free") -> OpenDigraph:
+    def random(
+        cls, n: int, bound: int, inputs: int = 0, outputs: int = 0, form: str = "free"
+    ) -> OpenDigraph:
         """
         Doc
         Bien préciser ici les options possibles pour form !
@@ -168,16 +62,26 @@ class OpenDigraph:  # for open directed graph
         if form == "free":
             digraph = cls.graph_from_adjacency_matrix(random_matrix(n, bound))
         elif form == "DAG":
-            digraph = cls.graph_from_adjacency_matrix(random_matrix(n, bound, triangular=True))
+            digraph = cls.graph_from_adjacency_matrix(
+                random_matrix(n, bound, triangular=True)
+            )
         elif form == "oriented":
-            digraph = cls.graph_from_adjacency_matrix(random_matrix(n, bound, oriented=True))
+            digraph = cls.graph_from_adjacency_matrix(
+                random_matrix(n, bound, oriented=True)
+            )
         elif form == "loop-free":
-            digraph = cls.graph_from_adjacency_matrix(random_matrix(n, bound, null_diag=True))
+            digraph = cls.graph_from_adjacency_matrix(
+                random_matrix(n, bound, null_diag=True)
+            )
         elif form == "undirected":
-            digraph = cls.graph_from_adjacency_matrix(random_matrix(n, bound, symetric=True))
+            digraph = cls.graph_from_adjacency_matrix(
+                random_matrix(n, bound, symetric=True)
+            )
         elif form == "loop-free undirected":
-            digraph = cls.graph_from_adjacency_matrix(random_matrix(n, bound, null_diag=True, symetric=True))
-        
+            digraph = cls.graph_from_adjacency_matrix(
+                random_matrix(n, bound, null_diag=True, symetric=True)
+            )
+
         for input in range(inputs):
             digraph.add_input_node(random.randint(0, len(digraph.nodes) - 1))
         for output in range(outputs):
@@ -207,26 +111,32 @@ class OpenDigraph:  # for open directed graph
 
         print(lines)
 
+    @property
     def copy(self) -> OpenDigraph:
         """Returns a copy of the open digraph"""
-        return OpenDigraph(self.inputs, self.outputs, list(self.nodes.values()))
+        return deepcopy(self)
 
+    @property
     def get_input_ids(self) -> List[int]:
         """Returns the inputs of the open digraph"""
         return self.inputs
 
+    @property
     def get_output_ids(self) -> List[int]:
         """Returns the outputs of the open digraph"""
         return self.outputs
 
+    @property
     def get_id_node_map(self) -> Dict[int, Node]:
         """Returns the nodes of the open digraph"""
         return self.nodes
 
+    @property
     def get_nodes(self) -> List[Node]:
         """Returns a list of all the nodes in the open digraph"""
         return list(self.nodes.values())
 
+    @property
     def get_node_ids(self) -> List[int]:
         """Returns a list of all the nodes id in the open digraph"""
         return list(self.nodes.keys())
@@ -258,6 +168,7 @@ class OpenDigraph:  # for open directed graph
         """Adds new_output_id to the open digraph's output ids"""
         self.outputs.append(new_output_id)
 
+    @property
     def new_id(self) -> int:
         """Returns a new id unused by any node of the open digraph"""
         if self.nodes == {}:
@@ -281,7 +192,7 @@ class OpenDigraph:  # for open directed graph
         label: str = "",
         parents: Dict[int, int] = None,
         children: Dict[int, int] = None,
-    ) -> None:
+    ) -> int:
         """Adds a new node to the open digraph
 
         Optionnal Parameters
@@ -292,10 +203,15 @@ class OpenDigraph:  # for open directed graph
             The parents of the new node
         children : Dict[int, int] (default {})
             The children of the new node
+
+        Returns
+        ----------
+        node_id : int
+            The id of the new node
         """
         parents = {} if parents is None else None
-        children= {} if children is None else None
-        node_id = self.new_id()
+        children = {} if children is None else None
+        node_id = self.new_id
         new_node = Node(node_id, label, parents, children)
         self.nodes[node_id] = new_node
         for parent in list(parents.keys()):
@@ -304,6 +220,7 @@ class OpenDigraph:  # for open directed graph
                     self.add_edge(parent, node_id)
                 for multi in list(children.values()):
                     self.add_edge(node_id, child)
+        return node_id
 
     # *args are tuples (src, tgt)
     def remove_edges(self, *args: Tuple[int, int]) -> None:
@@ -356,7 +273,7 @@ class OpenDigraph:  # for open directed graph
             tgt_id = arg
             tgt_node = self.get_node_by_id(tgt_id)
 
-            for parent_id in tgt_node.get_parent_ids():
+            for parent_id in tgt_node.get_parent_ids:
                 self.remove_parallel_edges((parent_id, tgt_id))
 
                 # If the parent is an input removes it from the open digraph and its id from the inputs
@@ -365,7 +282,7 @@ class OpenDigraph:  # for open directed graph
                     self.nodes.pop(parent_id)
                     self.inputs.remove(parent_id)
 
-            for child_id in tgt_node.get_children_ids():
+            for child_id in tgt_node.get_children_ids:
                 self.remove_parallel_edges((tgt_id, child_id))
 
                 # If the child is an output removes it from the open digraph and its id from the outputs
@@ -382,6 +299,7 @@ class OpenDigraph:  # for open directed graph
 
             self.nodes.pop(tgt_id)
 
+    @property
     def is_well_formed(self) -> None:
         """Verifies is the open digraph is well formed and returns None is so and
 
@@ -393,7 +311,7 @@ class OpenDigraph:  # for open directed graph
         # Checks if all intput nodes are in the graph, have no parents and have a single child of multiplicity 1
         for node_id in self.inputs:
             input_node = self.get_node_by_id(node_id)
-            if not (input_node in self.get_nodes()):
+            if not (input_node in self.get_nodes):
                 raise Exception(f"Input node {input_node} isn't in the graph")
             if input_node.parents:
                 raise Exception(f"Input node {input_node} has parents")
@@ -405,7 +323,7 @@ class OpenDigraph:  # for open directed graph
         # Checks if all output nodes are in the graph, have no children and have a single parent of multiplicity 1
         for node_id in self.outputs:
             output_node = self.get_node_by_id(node_id)
-            if not (output_node in self.get_nodes()):
+            if not (output_node in self.get_nodes):
                 raise Exception(f"Output node {input_node} isn't in the graph")
             if output_node.children:
                 raise Exception(f"Output node {input_node} has children")
@@ -419,7 +337,7 @@ class OpenDigraph:  # for open directed graph
             if self.nodes[node_id].id != node_id:
                 raise Exception(f"A key of <id,node> in nodes is invalid")
 
-        for node in self.get_nodes():
+        for node in self.get_nodes:
             # Checks if all the children of all the nodes have that same node as a parent with their respective multiplicity
             for parent_id, multi in node.parents.items():
                 children = self.get_node_by_id(parent_id).children
@@ -453,7 +371,7 @@ class OpenDigraph:  # for open directed graph
             raise Exception(f"the target node of id {child_id} is already an input")
         if not (child_id in self.nodes):
             raise Exception(f"the target node of id {child_id} isn't in the graph")
-        node_id = self.new_id()
+        node_id = self.new_id
         new_node = Node(node_id, "", {}, {child_id: 1})
         self.nodes[node_id] = new_node
         self.add_input_id(node_id)
@@ -476,206 +394,17 @@ class OpenDigraph:  # for open directed graph
             raise Exception(f"the target node of id {parent_id} is already an output")
         if not (parent_id in self.nodes):
             raise Exception(f"the target node of id {parent_id} isn't in the graph")
-        node_id = self.new_id()
+        node_id = self.new_id
         new_node = Node(node_id, "", {parent_id: 1}, {})
         self.nodes[node_id] = new_node
         self.add_output_id(node_id)
         self.add_edge(parent_id, node_id)
 
-    def enumerate_digraph(self) -> Dict[int, int]:
-        """Returns a dic that matches each node id to a unique integer between 0 and the number of nodes
-        
-        Returns
-        ------
-        A FINIR
-        """
-        node_ids = self.get_node_ids()
-        return {node_id: n for node_id, n in zip(node_ids, range(len(node_ids)))}
-
-    def adjency_matrix(self) -> Matrix:
-
-        n = len(self.nodes)
-        matrix = []
-        for i in range(n):
-            matrix.append([0]*n)
-        dic = self.enumerate_digraph()
-        
-        for node_id in dic:
-            node = self.get_node_by_id(node_id)
-            children = node.children
-            for child_id in children:
-                matrix[dic[node_id]][dic[child_id]] = children[child_id]
-        return matrix
-
-    def save_sa_dot_file(self, path: str, verbose: bool = False) -> None:
-        with open(path, "w") as file:
-            file.write("digraph G {\n")
-
-            for node_id in self.nodes:
-                node = self.get_node_by_id(node_id)
-                label = node.get_label()
-
-                if node_id in self.inputs:
-                    file.write(f"    v{node_id} [color=blue];\n")
-                if node_id in self.outputs:
-                    file.write(f"    v{node_id} [color=red];\n")
-
-                if verbose:
-                    file.write(f"    v{node_id} [label=\"{label} id={node_id}\"];\n")
-                else:
-                    file.write(f"    v{node_id} [label=\"{label}\"];\n")
-                
-                for child_id in node.children:
-                    for multiplicity in range(node.children[child_id]):
-                        file.write(f"    v{node_id} -> v{child_id};\n")
-
-            file.write("}")
-
-    def display(self, verbose: bool = False) -> None:
-        self.save_sa_dot_file("digraph.dot", verbose=verbose)
-        os.system("dot -Tpdf digraph.dot -o digraph.pdf")
-
-    def sub_is_cyclic(self, *args: List[int]) -> bool:
-        if self.nodes == {}:
-            return False
-        
-        leaves = []
-        for node_id in self.nodes:
-            node = self.get_node_by_id(node_id)
-            if node.out_degree() == 0:
-                leaves.append(node)
-            
-        if not leaves:
-            return True
-
-        for leaf in leaves.copy():
-            parents = self.get_nodes_by_ids(leaf.get_parent_ids())
-            for parent in parents:
-                if len(parent.children) == 1:
-                    leaves.append(parent)
-            leaves.remove(leaf)
-            self.remove_node_by_id(leaf.get_id())
-        
-        return self.sub_is_cyclic(leaves)
-
-        
-    def is_cyclic(self) -> bool:
-        
-
-        digraph = self.copy()
-        for input in self.inputs:
-            digraph.remove_node_by_id(input)
-        for output in self.outputs:
-            digraph.remove_node_by_id(output)
-        
-        return digraph.sub_is_cyclic()
-
-    def min_id(self) -> int:
-        return min(self.nodes)
-
-    def max_id(self) -> int:
-        return max(self.nodes)
-
-    def shift_indices(self, n: int) -> None:
-        for id in self.nodes:
-            node = self.get_node_by_id(id)
-            node.set_id(id + n)
-            node.set_parent_ids({id + n: multi for id, multi in node.parents.items()})
-            node.set_children_ids({id + n: multi for id, multi in node.children.items()})          
-        
-        for i in range(len(self.inputs)):
-            self.inputs[i] += n
-            
-        for j in range(len(self.outputs)):
-            self.outputs[j] += n
-        
-        self.nodes = {node.id: node for node in self.nodes.values()}
-
-    def iparallel(self, *args: OpenDigraph) -> None:
-        "A TESTER"
-        for g in args:
-            g.shift_indices(self.max_id() - g.min_id() + 1)
-            self.inputs.extend(g.inputs)
-            self.outputs.extend(g.outputs)
-            for node in g.get_nodes():
-                self.nodes[node.id] = node
-
-    def parallel(self, g: OpenDigraph) -> OpenDigraph:
-        "A TESTER"
-        output = self.copy()
-        output.iparallel(g)
-        return output
-
-    def icompose(self, g: OpenDigraph) -> None:
-        g.shift_indices(self.max_id() - g.min_id() + 1)
-        if len(self.outputs) != len(g.inputs):
-            raise Exception(f"Length of outputs of self are different from inputs of g")
-
-        for node in g.get_nodes():
-            self.nodes[node.id] = node
-            
-        for i in range(len(self.outputs)):
-            node_o = self.get_node_by_id(self.outputs[i])
-            node_i = self.get_node_by_id(g.inputs[i])
-            self.add_edge(node_o.get_parent_ids()[0], node_i.get_children_ids()[0])
-            self.remove_node_by_id(node_o.id, node_i.id)
-
-        self.outputs = g.outputs
-
-    def compose(self, g: OpenDigraph) -> OpenDigraph:
-        output = self.copy()
-        output.icompose(g)
-        return output
-    
-
-    def dfs(self,visited, node, component):
-        if node not in visited:
-            visited.add(node)
-            component.append(node.id)
-            voisins = node.get_parent_ids() + node.get_children_ids()
-            for voisin in voisins:
-                self.dfs(visited,self.get_node_by_id(voisin),component)
-    
-    
-    def connected_components_v2(self):
-        visited = set()
-        output = {}
-        components = []
-        for id in self.inputs:
-            node = self.get_node_by_id(id)
-            l = []
-            self.dfs(visited, node, l)
-            components.append(l)
-        components = list(filter(lambda a: a != [], components))
-        nb_component = len(components)
-        k = 0
-        for component in components:
-            component.sort()
-            for id in component:
-                output[id] = k
-            k += 1
-        return nb_component,output
-    
-    '''
-    def connected_components_v1(self):
-        mat = self.adjency_matrix()
-        output = {}
-        components = []
-        for input_id in self.inputs:
-            current_id = input_id
-            # on boucle sur les id
-            # si l'id est pas dans aucun des component, on l'ajoute
-            # dans un nouveau component ajouté à components
-            #   on recommence sur son enfant
-            # si l'id est dans components, on break et on passe au
-            # prochain id
-                       
-            for component in components:
-                if current_id in component:
-                    break
-            components.append([current_id])
-            
-            components[i].append([input_id])
-
-    def dijkstra( src, direction=None) :
-        '''
+    def fusion(self, src: int, tgt: int, new_label: str = None) -> None:
+        for parent_id in self[tgt].get_parent_ids:
+            self.add_edge(parent_id, src)
+        for children_id in self[tgt].get_children_ids:
+            self.add_edge(src, children_id)
+        if new_label != None:
+            self[src].set_label(new_label)
+        self.remove_node_by_id(tgt)

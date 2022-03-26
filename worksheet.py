@@ -1,24 +1,26 @@
-import inspect
-from tabnanny import verbose
 from modules.open_digraph import *
+from modules.bool_circ import *
 
-i0 = Node(0, "i0", {}, {3: 1})
-i1 = Node(1, "i1", {}, {3: 1})
-i2 = Node(2, "i2", {}, {4: 1})
-n0 = Node(3, "&", {0: 1, 1: 1}, {4: 1})
-n1 = Node(4, "|", {3: 1, 2: 1}, {5: 1})
-o0 = Node(5, "o0", {4: 1}, {})
+i0 = Node(10, "", {}, {0: 1})
+i1 = Node(11, "", {}, {2: 1})
 
-od1 = OpenDigraph([0, 1, 2], [5], [i0, i1, i2, n0, n1, o0])
+n0 = Node(0, "", {10: 1}, {3: 1})
+n1 = Node(1, "", {}, {4: 1, 5: 1, 8: 1})
+n2 = Node(2, "", {11: 1}, {4: 1})
+n3 = Node(3, "", {0: 1}, {5: 1, 6: 1, 7: 1})
+n4 = Node(4, "", {1: 1, 2: 1}, {6: 1})
+n5 = Node(5, "", {1: 1, 3: 1}, {7: 1})
+n6 = Node(6, "", {3: 1, 4: 1}, {8: 1, 9: 1})
+n7 = Node(7, "", {3: 1, 5: 1}, {12: 1})
+n8 = Node(8, "", {1: 1, 6: 1}, {})
+n9 = Node(9, "", {6: 1}, {})
 
-i3 = Node(0, "i3", {}, {1: 1})
-n0 = Node(1, "", {0: 1}, {2: 1})
-o2 = Node(2, "o2", {1: 1}, {})
+o0 = Node(12, "", {7: 1}, {})
 
-od2 = OpenDigraph([0], [2], [i3, n0, o2])
+test_graph = OpenDigraph(
+    [10, 11], [12], [i0, i1, n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, o0]
+)
 
-od1.iparallel(od2)
-
-od1.display(verbose=True)
-
-print_matrix(od1.adjency_matrix())
+circuit = parse_parenthesis("((x0)&((x1)&(x2)))|((x1)&(~(x2)))")
+circuit.fusion(2, 7)
+circuit.display()
