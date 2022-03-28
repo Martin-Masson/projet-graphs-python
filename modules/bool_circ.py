@@ -65,27 +65,60 @@ class BoolCirc(OpenDigraph):
                     )
 
 
-def parse_parenthesis(s: string) -> BoolCirc:
-    o0 = Node(1, "", {0: 1}, {})
-    n0 = Node(0, "", {}, {1: 1})
-    g = OpenDigraph([], [1], [o0, n0])
-    current_id = 0
-    s2 = ""
-    for char in s:
-        if char == "(":
-            current_node = g[current_id]
-            if s2 != "":
-                current_node.set_label(s2)
-            new_id = g.add_node(g.new_id)
-            g.add_edge(new_id, current_id)
-            current_id = new_id
-            s2 = ""
-        elif char == ")":
-            current_node = g[current_id]
-            if s2 != "":
-                current_node.set_label(s2)
-            current_id = g[current_node.get_children_ids[0]].id
-            s2 = ""
+def parse_parenthesis(*args: string) -> BoolCirc:
+    operator = ["", "&", "|", "^", "~"]
+    output_graph = OpenDigraph.empty()
+
+    for s in args:
+        o0 = Node(1, "", {0: 1}, {})
+        n0 = Node(0, "", {}, {1: 1})
+        g = OpenDigraph([], [1], [o0, n0])
+        current_id = 0
+        s2 = ""
+        for char in s:
+            if char == "(":
+                current_node = g[current_id]
+                if s2 != "":
+                    labels = {node.label: node.id for node in g.get_nodes}
+                    if not (s2 in operator) and s2 in labels:
+                        g.fusion(current_id, labels[s2])
+                    current_node.set_label(s2)
+                new_id = g.add_node(g.new_id)
+                g.add_edge(new_id, current_id)
+                current_id = new_id
+                s2 = ""
+            elif char == ")":
+                current_node = g[current_id]
+                if s2 != "":
+                    labels = {node.label: node.id for node in g.get_nodes}
+                    if not (s2 in operator) and s2 in labels:
+                        g.fusion(current_id, labels[s2])
+                    current_node.set_label(s2)
+                current_id = g[current_node.get_children_ids[0]].id
+                s2 = ""
+            else:
+                s2 += char
+
+        if s == args[0]:
+            output_graph = g
         else:
-            s2 += char
-    return g
+            output_labels = {node.label: node.id for node in output_graph.get_nodes}
+            n = output_graph.new_id
+
+            output_graph.iparallel(g)
+
+            # connected components marche pas donc on peu pas encore l'utiliser
+            #   (ex: ici il me return "0, {}" alors qu'il y a clairement une
+            #        autre composante quand tu regardes dans digraph.pdf)
+
+            component_nodes = []
+            for node in output_graph.get_nodes:
+                if node.id >= n:
+                    component_nodes.append(node)
+
+            for node in component_nodes:
+                label = node.get_label
+                if not (label in operator) and label in output_labels:
+                    output_graph.fusion(node.get_id, output_labels[label])
+
+    return output_graph

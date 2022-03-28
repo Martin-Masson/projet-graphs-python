@@ -21,6 +21,5 @@ test_graph = OpenDigraph(
     [10, 11], [12], [i0, i1, n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, o0]
 )
 
-circuit = parse_parenthesis("((x0)&((x1)&(x2)))|((x1)&(~(x2)))")
-circuit.fusion(2, 7)
+circuit = parse_parenthesis("((x0)&((x1)&(x2)))|((x1)&(~(x2)))", "((x0)&(~(x1)))|(x2)")
 circuit.display()

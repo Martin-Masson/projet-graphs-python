@@ -28,7 +28,7 @@ class Node:
             "Node("
             + str(self.id)
             + ", "
-            + self.label
+            + str(self.label)
             + ", "
             + str(self.parents)
             + ", "

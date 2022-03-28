@@ -110,7 +110,7 @@ class bool_circ_mx:
         output = {}
         components = []
         for id in self.inputs:
-            node = self.get_node_by_id(id)
+            node = self[id]
             l = []
             self.dfs(visited, node, l)
             components.append(l)
