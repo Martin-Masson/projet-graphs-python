@@ -60,7 +60,7 @@ class bool_circ_mx:
 
         self.nodes = {node.id: node for node in self.nodes.values()}
 
-    def iparallel(self, *args: OpenDigraph) -> None:
+    def iparallel(self, args: List[OpenDigraph]) -> None:
         "A TESTER"
         for g in args:
             g.shift_indices(self.max_id - g.min_id + 1)
@@ -72,7 +72,7 @@ class bool_circ_mx:
     def parallel(self, g: OpenDigraph) -> OpenDigraph:
         "A TESTER"
         output = self.copy
-        output.iparallel(g)
+        output.iparallel([g])
         return output
 
     def icompose(self, g: OpenDigraph) -> None:

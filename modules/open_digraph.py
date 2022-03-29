@@ -354,7 +354,8 @@ class OpenDigraph(
                         f"Node {child_id} isn't a child of node {node_id} or their multiplicity are different"
                     )
 
-    def add_input_node(self, child_id: int) -> None:
+    def add_input_node(self, child_id: int) -> int:
+        # CHANGER LA DOC on return un id maintenant
         """Adds a new input node to the open digraph
 
         Parameters
@@ -376,8 +377,10 @@ class OpenDigraph(
         self.nodes[node_id] = new_node
         self.add_input_id(node_id)
         self.add_edge(node_id, child_id)
+        return node_id
 
-    def add_output_node(self, parent_id: int) -> None:
+    def add_output_node(self, parent_id: int) -> int:
+        # PAREIL CHANGER LA DOC
         """Adds a new output node to the open digraph
 
         Parameters
@@ -399,6 +402,7 @@ class OpenDigraph(
         self.nodes[node_id] = new_node
         self.add_output_id(node_id)
         self.add_edge(parent_id, node_id)
+        return node_id
 
     def fusion(self, src: int, tgt: int, new_label: str = None) -> None:
         for parent_id in self[tgt].get_parent_ids:

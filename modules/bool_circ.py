@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from modules.open_digraph import *
+from modules.bool_circ_mx.binary_mx import *
 
 
-class BoolCirc(OpenDigraph):
+class BoolCirc(OpenDigraph, binary_mx):
     def __init__(self, g: OpenDigraph) -> BoolCirc:
         if isinstance(g, OpenDigraph):
             if not (g.is_well_formed):
@@ -105,11 +106,7 @@ def parse_parenthesis(*args: string) -> BoolCirc:
             output_labels = {node.label: node.id for node in output_graph.get_nodes}
             n = output_graph.new_id
 
-            output_graph.iparallel(g)
-
-            # connected components marche pas donc on peu pas encore l'utiliser
-            #   (ex: ici il me return "0, {}" alors qu'il y a clairement une
-            #        autre composante quand tu regardes dans digraph.pdf)
+            output_graph.iparallel([g])
 
             component_nodes = []
             for node in output_graph.get_nodes:
@@ -120,5 +117,11 @@ def parse_parenthesis(*args: string) -> BoolCirc:
                 label = node.get_label
                 if not (label in operator) and label in output_labels:
                     output_graph.fusion(node.get_id, output_labels[label])
+
+    for node in output_graph.get_nodes:
+        if node.parents == {}:
+            input_id = output_graph.add_input_node(node.get_id)
+            output_graph[input_id].set_label(node.get_label)
+            node.set_label("")
 
     return output_graph
