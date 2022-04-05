@@ -209,8 +209,8 @@ class OpenDigraph(
         node_id : int
             The id of the new node
         """
-        parents = {} if parents is None else None
-        children = {} if children is None else None
+        parents = {} if parents is None else parents
+        children = {} if children is None else children
         node_id = self.new_id
         new_node = Node(node_id, label, parents, children)
         self.nodes[node_id] = new_node
