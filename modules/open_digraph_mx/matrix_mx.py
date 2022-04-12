@@ -12,10 +12,10 @@ def random_int_list(n: int, bound: int) -> List[int]:
 def random_matrix(
     n: int,
     bound: int,
-    null_diag: bool = False,
-    symetric: bool = False,
-    oriented: bool = False,
-    triangular: bool = False,
+    null_diag: bool = False,  # Pas de liens vers sois même
+    symetric: bool = False,  # Graph non dirigé
+    oriented: bool = False,  # Graph orienté
+    triangular: bool = False,  # Graph dirigé acyclique (DAG)
 ) -> Matrix:
     matrix = []
     for i in range(n):

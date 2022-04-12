@@ -63,7 +63,7 @@ class OpenDigraph(
             digraph = cls.graph_from_adjacency_matrix(random_matrix(n, bound))
         elif form == "DAG":
             digraph = cls.graph_from_adjacency_matrix(
-                random_matrix(n, bound, triangular=True)
+                random_matrix(n, bound, null_diag=True, triangular=True)
             )
         elif form == "oriented":
             digraph = cls.graph_from_adjacency_matrix(
@@ -82,11 +82,12 @@ class OpenDigraph(
                 random_matrix(n, bound, null_diag=True, symetric=True)
             )
 
-        for input in range(inputs):
-            digraph.add_input_node(random.randint(0, len(digraph.nodes) - 1))
-        for output in range(outputs):
-            digraph.add_output_node(random.randint(0, len(digraph.nodes) - 1))
+        length = len(digraph.nodes) - 1
 
+        for input in range(inputs):
+            digraph.add_input_node(random.randint(0, length))
+        for output in range(outputs):
+            digraph.add_output_node(random.randint(0, length))
         return digraph
 
     @classmethod

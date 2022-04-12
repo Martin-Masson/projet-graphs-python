@@ -7,7 +7,7 @@ from modules.bool_circ import *
 
 class binary_mx:
     @classmethod
-    def construct_op(self, bits: str) -> BoolCirc:
+    def construct_op(cls, bits: str) -> BoolCirc:
         length = len(bits)
         if (length != 0) and ((length & (length - 1)) == 0):
             n0 = Node(0, "", {1: 1}, {})
