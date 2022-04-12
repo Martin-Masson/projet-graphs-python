@@ -3,7 +3,7 @@ from __future__ import annotations
 
 class bool_circ_mx:
     def sub_is_cyclic(self, *args: List[int]) -> bool:
-        if self.nodes == {}:
+        if self.is_empty:
             return False
 
         leaves = []

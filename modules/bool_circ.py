@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import random
+
 from modules.open_digraph import *
 from modules.bool_circ_mx.binary_mx import *
 
@@ -65,6 +67,26 @@ class BoolCirc(OpenDigraph, binary_mx):
                         f"NOT node {node_id} must have an in degree and out degree of exactly 1"
                     )
 
+    @classmethod
+    def random(cls, n: int, bound: int) -> BoolCirc:
+        random_circ = OpenDigraph.random(n, bound, form="DAG")
+        for node in random_circ.get_nodes:
+            if not (node.has_parents):
+                random_circ.add_input_node(node.get_id)
+            if not (node.has_children):
+                random_circ.add_output_node(node.get_id)
+
+            if node.in_degree == 1 and node.out_degree == 1:
+                node.set_label("~")
+
+            if node.in_degree > 1:
+                node.set_label(random.random_choice(["&", "|", "^"]))
+                if node.out_degree > 1:
+                    new_id = random_circ.add_node(
+                        parents={node.get_id: 1}, children=node.children
+                    )
+                    node.set_children_ids({new_id: 1})
+
 
 def parse_parenthesis(*args: string) -> BoolCirc:
     operator = ["", "&", "|", "^", "~"]
@@ -119,7 +141,7 @@ def parse_parenthesis(*args: string) -> BoolCirc:
                     output_graph.fusion(node.get_id, output_labels[label])
 
     for node in output_graph.get_nodes:
-        if node.parents == {}:
+        if not (node.has_parents):
             input_id = output_graph.add_input_node(node.get_id)
             output_graph[input_id].set_label(node.get_label)
             node.set_label("")

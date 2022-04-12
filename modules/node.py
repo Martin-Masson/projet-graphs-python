@@ -40,6 +40,14 @@ class Node:
         return str(self)
 
     @property
+    def has_parents(self) -> bool:
+        return self.parents != {}
+
+    @property
+    def has_children(self) -> bool:
+        return self.children != {}
+
+    @property
     def copy(self) -> Node:
         """Returns a copy of the node"""
         return deepcopy(self)

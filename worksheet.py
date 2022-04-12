@@ -21,5 +21,5 @@ test_graph = OpenDigraph(
     [10, 11], [12], [i0, i1, n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, o0]
 )
 
-random_graph = OpenDigraph.random(6, 1, inputs=3, outputs=2, form="DAG")
-random_graph.display(verbose=True)
+random_circ = BoolCirc.random(6, 1)
+random_circ.display(verbose=True)

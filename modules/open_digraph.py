@@ -110,7 +110,9 @@ class OpenDigraph(
             for line in file:
                 lines.append(line)
 
-        print(lines)
+    @property
+    def is_empty(self) -> bool:
+        return self.nodes == {}
 
     @property
     def copy(self) -> OpenDigraph:
@@ -172,7 +174,7 @@ class OpenDigraph(
     @property
     def new_id(self) -> int:
         """Returns a new id unused by any node of the open digraph"""
-        if self.nodes == {}:
+        if self.is_empty:
             return 0
         else:
             return max(self.nodes) + 1
