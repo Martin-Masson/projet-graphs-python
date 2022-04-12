@@ -214,16 +214,18 @@ class OpenDigraph(
         """
         parents = {} if parents is None else parents
         children = {} if children is None else children
-        node_id = self.new_id
-        new_node = Node(node_id, label, parents, children)
-        self.nodes[node_id] = new_node
-        for parent in list(parents.keys()):
-            for child in list(children.keys()):
-                for multi in list(parents.values()):
-                    self.add_edge(parent, node_id)
-                for multi in list(children.values()):
-                    self.add_edge(node_id, child)
-        return node_id
+
+        new_id = self.new_id
+        new_node = Node(new_id, label, parents, children)
+        self.nodes[new_id] = new_node
+        for parent_id in list(parents.keys()):
+            for multi in range(parents[parent_id] - 1):
+                self.add_edge(parent_id, new_id)
+        for child_id in list(children.keys()):
+            for multi in range(children[child_id] - 1):
+                self.add_edge(new_id, child_id)
+
+        return new_id
 
     # *args are tuples (src, tgt)
     def remove_edges(self, *args: Tuple[int, int]) -> None:

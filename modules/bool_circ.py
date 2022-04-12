@@ -80,12 +80,15 @@ class BoolCirc(OpenDigraph, binary_mx):
                 node.set_label("~")
 
             if node.in_degree > 1:
-                node.set_label(random.random_choice(["&", "|", "^"]))
+                node.set_label(random.choice(["&", "|", "^"]))
                 if node.out_degree > 1:
+                    children = node.children
                     new_id = random_circ.add_node(
-                        parents={node.get_id: 1}, children=node.children
+                        parents={node.get_id: 1}, children=children
                     )
                     node.set_children_ids({new_id: 1})
+
+        return random_circ
 
 
 def parse_parenthesis(*args: string) -> BoolCirc:
