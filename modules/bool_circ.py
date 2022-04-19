@@ -116,7 +116,7 @@ class BoolCirc(OpenDigraph, binary_mx):
                 if node.out_degree > 1:
                     children = node.children.copy()
                     new_id = circ.add_node(parents={node.get_id: 1}, children=children)
-                    for child_id in children.copy():
+                    for child_id in children:
                         circ.remove_parallel_edges((node.get_id, child_id))
 
         return circ
