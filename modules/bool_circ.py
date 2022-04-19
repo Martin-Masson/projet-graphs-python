@@ -68,27 +68,58 @@ class BoolCirc(OpenDigraph, binary_mx):
                     )
 
     @classmethod
-    def random(cls, n: int, bound: int) -> BoolCirc:
-        random_circ = OpenDigraph.random(n, bound, form="DAG")
-        for node in random_circ.get_nodes:
+    def random(cls, n: int, bound: int, inputs: int = 0, outputs: int = 0) -> BoolCirc:
+        circ = OpenDigraph.random(n, bound, form="DAG")
+        for node in circ.get_nodes:
             if not (node.has_parents):
-                random_circ.add_input_node(node.get_id)
+                circ.add_input_node(node.get_id)
             if not (node.has_children):
-                random_circ.add_output_node(node.get_id)
+                circ.add_output_node(node.get_id)
 
+        if inputs != 0 and outputs != 0:
+            while inputs > len(circ.inputs):
+                circ.add_input_node(circ.random_op)
+            while inputs < len(circ.inputs):
+                input_1 = circ[circ.random_input]
+                other = circ.inputs.copy()
+                other.remove(input_1.get_id)
+                input_2 = circ[random.choice(other)]
+                input_1_child = circ[input_1.get_children_ids[0]]
+                new_id = circ.add_node(
+                    parents={input_1.id: 1},
+                    children=input_1.children | input_2.children,
+                )
+                circ.remove_parallel_edges((input_1.get_id, input_1_child.get_id))
+                circ.remove_node_by_id(input_2.get_id)
+
+            while outputs > len(circ.outputs):
+                circ.add_output_node(circ.random_op)
+            while outputs < len(circ.outputs):
+                output_1 = circ[circ.random_output]
+                other = circ.outputs.copy()
+                other.remove(output_1.get_id)
+                output_2 = circ[random.choice(other)]
+                output_1_parent = circ[output_1.get_parent_ids[0]]
+                new_id = circ.add_node(
+                    parents=output_1.parents | output_2.parents,
+                    children={output_1.id: 1},
+                )
+                circ.remove_parallel_edges((output_1_parent.get_id, output_1.get_id))
+                circ.remove_node_by_id(output_2.get_id)
+
+        for node in circ.get_nodes:
             if node.in_degree == 1 and node.out_degree == 1:
                 node.set_label("~")
 
             if node.in_degree > 1:
                 node.set_label(random.choice(["&", "|", "^"]))
                 if node.out_degree > 1:
-                    children = node.children
-                    new_id = random_circ.add_node(
-                        parents={node.get_id: 1}, children=children
-                    )
-                    node.set_children_ids({new_id: 1})
+                    children = node.children.copy()
+                    new_id = circ.add_node(parents={node.get_id: 1}, children=children)
+                    for child_id in children.copy():
+                        circ.remove_parallel_edges((node.get_id, child_id))
 
-        return random_circ
+        return circ
 
 
 def parse_parenthesis(*args: string) -> BoolCirc:

@@ -179,10 +179,23 @@ class OpenDigraph(
         else:
             return max(self.nodes) + 1
 
+    @property
+    def random_op(self) -> Node:
+        operators = list(set(self.get_node_ids) - set(self.inputs) - set(self.outputs))
+        return random.choice(operators)
+
+    @property
+    def random_input(self) -> Node:
+        return random.choice(self.inputs)
+
+    @property
+    def random_output(self) -> Node:
+        return random.choice(self.outputs)
+
     def add_edge(self, src: int, tgt: int) -> None:
         """Adds a edge from node of id src to node of id tgt"""
-        tgt_node = self.get_node_by_id(tgt)
-        src_node = self.get_node_by_id(src)
+        tgt_node = self[tgt]
+        src_node = self[src]
         if src in tgt_node.parents and tgt in src_node.children:
             tgt_node.parents[src] += 1
             src_node.children[tgt] += 1
@@ -216,13 +229,13 @@ class OpenDigraph(
         children = {} if children is None else children
 
         new_id = self.new_id
-        new_node = Node(new_id, label, parents, children)
+        new_node = Node(new_id, label, {}, {})
         self.nodes[new_id] = new_node
         for parent_id in list(parents.keys()):
-            for multi in range(parents[parent_id] - 1):
+            for multi in range(parents[parent_id]):
                 self.add_edge(parent_id, new_id)
         for child_id in list(children.keys()):
-            for multi in range(children[child_id] - 1):
+            for multi in range(children[child_id]):
                 self.add_edge(new_id, child_id)
 
         return new_id
@@ -261,8 +274,8 @@ class OpenDigraph(
         for arg in args:
             src = arg[0]
             tgt = arg[1]
-            src_node = self.get_node_by_id(src)
-            tgt_node = self.get_node_by_id(tgt)
+            src_node = self[src]
+            tgt_node = self[tgt]
             del src_node.children[tgt]
             del tgt_node.parents[src]
 
