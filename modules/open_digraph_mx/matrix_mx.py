@@ -6,6 +6,7 @@ Matrix = List[List[int]]
 
 
 def random_int_list(n: int, bound: int) -> List[int]:
+    """ Génère une liste de n entiers aléatoires entre 0 et bound."""
     return [random.randint(0, bound) for i in range(n)]
 
 
@@ -17,6 +18,31 @@ def random_matrix(
     oriented: bool = False,  # Graph orienté
     triangular: bool = False,  # Graph dirigé acyclique (DAG)
 ) -> Matrix:
+    """ Génère une matrice de n x n avec des valeurs aléatoires comprises entre 0 et bound. 
+    
+    Parameters:
+    -----------
+    n: int
+        Nombre de lignes et de colonnes de la matrice.
+    bound: int
+        Valeur maximale des éléments de la matrice.
+    
+    Optional parameters:
+    --------------------
+    null_diag: bool
+        Si True, la matrice ne contient pas de liens vers sois même.
+    symetric: bool
+        Si True, la matrice est symétrique.
+    oriented: bool
+        Si True, la matrice est orientée.
+    triangular: bool
+        Si True, la matrice est triangulaire.
+    
+    Returns:
+    --------
+    Matrix 
+        Matrice générée.
+    """
     matrix = []
     for i in range(n):
         matrix.append(random_int_list(n, bound))
@@ -37,6 +63,7 @@ def random_matrix(
 
 
 def print_matrix(mat: Matrix):
+    """ Affiche une matrice. """
     print("", end="    ")
     for i in range(len(mat)):
         print(i, end="  ")
@@ -56,6 +83,8 @@ class matrix_mx:
 
         Returns
         ------
+        Dict[int, int]
+            Dic that matches each node id to a unique integer between 0 and the number of nodes
         A FINIR
         """
         node_ids = self.get_node_ids
@@ -63,6 +92,13 @@ class matrix_mx:
 
     @property
     def adjency_matrix(self) -> Matrix:
+        """ Returns the adjency matrix of the digraph.
+        
+        Returns
+        ------
+        Matrix
+            Adjency matrix of the digraph.
+        """
         n = len(self.nodes)
         matrix = []
         for i in range(n):
@@ -76,6 +112,3 @@ class matrix_mx:
                 matrix[dic[node_id]][dic[child_id]] = children[child_id]
         return matrix
 
-    """
-    def random_int_matrix
-    """

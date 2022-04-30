@@ -2,12 +2,25 @@ from __future__ import annotations
 from typing import Dict, List, Tuple
 
 from math import log2
-from modules.bool_circ import *
+from modules.bool_circ import BoolCirc
+from modules.open_digraph import *
 
 
 class binary_mx:
     @classmethod
     def construct_op(cls, bits: str) -> BoolCirc:
+        """Constructs a boolean circuit from a binary string. 
+        
+        Parameters
+        ----------
+        bits: str
+            A binary string.
+        
+        Returns
+        -------
+        circ: BoolCirc
+            A boolean circuit.
+        """
         length = len(bits)
         if (length != 0) and ((length & (length - 1)) == 0):
             n0 = Node(0, "", {1: 1}, {})

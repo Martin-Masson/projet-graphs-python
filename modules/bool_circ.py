@@ -8,6 +8,13 @@ from modules.bool_circ_mx.binary_mx import *
 
 class BoolCirc(OpenDigraph, binary_mx):
     def __init__(self, g: OpenDigraph) -> BoolCirc:
+        """ Constructor.
+
+        Parameters
+        ----------
+        g: OpenDigraph
+            Graphe à transformer en matrice booléenne circulaire.
+        """
         if isinstance(g, OpenDigraph):
             if not (g.is_well_formed):
                 """
@@ -23,6 +30,13 @@ class BoolCirc(OpenDigraph, binary_mx):
 
     @property
     def is_well_formed(self) -> None:
+        """Returns True if the digraph is well formed.
+        
+        Raises:
+        ------
+        Exception:
+            If the digraph is not well formed with the description of the problem.
+        """
         # Checks if the graph is acyclic
         if self.is_cyclic:
             raise Exception(f"The graph is cyclic")
@@ -69,6 +83,28 @@ class BoolCirc(OpenDigraph, binary_mx):
 
     @classmethod
     def random(cls, n: int, bound: int, inputs: int = 0, outputs: int = 0) -> BoolCirc:
+        """Returns a random boolean circuit of n nodes between 0 and bound with a given number of inputs and outputs.
+
+        Parameters:
+        -----------
+        n: int
+            The number of nodes of the circuit.
+        bound: int
+            The maximum value of the nodes.
+        
+        Optional parameters:
+        ---------------------
+        inputs: int
+            The number of inputs of the circuit.
+        outputs: int
+            The number of outputs of the circuit.
+        
+        Returns:
+        --------
+        circ : BoolCirc
+            A random boolean circuit.
+            
+        """
         circ = OpenDigraph.random(n, bound, form="DAG")
         for node in circ.get_nodes:
             if not (node.has_parents):
@@ -123,6 +159,18 @@ class BoolCirc(OpenDigraph, binary_mx):
 
 
 def parse_parenthesis(*args: string) -> BoolCirc:
+    """Returns a boolean circuit from a string.
+
+    Parameters
+    ----------
+    *args : string
+        The string to parse.
+    Returns
+    -------
+    BoolCirc : BoolCirc
+        The boolean circuit.
+
+    """
     operator = ["", "&", "|", "^", "~"]
     output_graph = OpenDigraph.empty()
 

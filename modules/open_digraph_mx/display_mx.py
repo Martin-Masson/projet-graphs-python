@@ -3,6 +3,14 @@ import os
 
 class display_mx:
     def save_sa_dot_file(self, path: str, verbose: bool = False) -> None:
+        """ Saves the digraph in a dot file. 
+        Parameters:
+        -----------
+        path: str
+            The path of the file.
+        verbose: bool
+            If True, displays the label of each node.
+        """
         with open(path, "w") as file:
             file.write("digraph G {\n")
 
@@ -26,10 +34,13 @@ class display_mx:
 
             file.write("}")
 
-    """
-    def from_dot_file
-    """
-
     def display(self, verbose: bool = False) -> None:
+        """ Displays the digraph
+        Parameters:
+        -----------
+        verbose: bool 
+            If True, displays the label of each node.
+        """
+
         self.save_sa_dot_file("digraph.dot", verbose=verbose)
         os.system("dot -Tpdf digraph.dot -o digraph.pdf")

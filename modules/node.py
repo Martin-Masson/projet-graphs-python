@@ -12,10 +12,16 @@ class Node:
         children: Dict[int, int],
     ) -> Node:
         """
-        identity: int; its unique id in the graph
-        label: string;
-        parents: int->int dict; maps a parent node's id to its multiplicity
-        children: int->int dict; maps a child node's id to its multiplicity
+        Parameters:
+        -----------
+        identity: int
+            The id of the node.
+        label: str
+            The label of the node.
+        parents: Dict[int, int] 
+            The parents of the node. Maps a parent node's id to its multiplicity
+        children: Dict[int, int]
+            The children of the node. Maps a child node's id to its multiplicity
         """
 
         self.id = identity
@@ -24,6 +30,7 @@ class Node:
         self.children = children
 
     def __str__(self) -> str:
+        """Returns a string representation of the node"""
         return (
             "Node("
             + str(self.id)
@@ -37,14 +44,17 @@ class Node:
         )
 
     def __repr__(self) -> str:
+        """Returns a string representation of the node"""
         return str(self)
 
     @property
     def has_parents(self) -> bool:
+        """Returns True if the node has parents"""
         return self.parents != {}
 
     @property
     def has_children(self) -> bool:
+        """Returns True if the node has children"""
         return self.children != {}
 
     @property
@@ -120,6 +130,7 @@ class Node:
 
     @property
     def in_degree(self) -> int:
+        """Returns the in-degree of the node"""
         degree = 0
         for parent_id in self.parents:
             degree += self.parents[parent_id]
@@ -127,6 +138,7 @@ class Node:
 
     @property
     def out_degree(self) -> int:
+        """Returns the out-degree of the node"""
         degree = 0
         for child_id in self.children:
             degree += self.children[child_id]
@@ -134,4 +146,5 @@ class Node:
 
     @property
     def degree(self) -> int:
+        """Returns the degree of the node"""
         return self.out_degree + self.in_degree

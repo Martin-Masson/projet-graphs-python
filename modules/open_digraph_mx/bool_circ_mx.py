@@ -3,6 +3,17 @@ from __future__ import annotations
 
 class bool_circ_mx:
     def sub_is_cyclic(self, *args: List[int]) -> bool:
+        """Returns True if the subgraph defined by the nodes ids in args is cyclic.
+
+        Parameters:
+        -----------
+        *args: List[int]
+            The list of the node ids.
+        Returns:
+        --------
+        bool
+            True if the subgraph is cyclic.
+        """
         if self.is_empty:
             return False
 
@@ -27,6 +38,12 @@ class bool_circ_mx:
 
     @property
     def is_cyclic(self) -> bool:
+        """Returns True if the digraph is cyclic.
+
+        Returns:
+        --------
+        bool
+            True if the digraph is cyclic."""
         digraph = self.copy
         for input in self.inputs:
             digraph.remove_node_by_id(input)
@@ -37,13 +54,16 @@ class bool_circ_mx:
 
     @property
     def min_id(self) -> int:
+        """Returns the minimum id of the digraph."""
         return min(self.nodes)
 
     @property
     def max_id(self) -> int:
+        """Returns the maximum id of the digraph."""
         return max(self.nodes)
 
     def shift_indices(self, n: int) -> None:
+        """Shifts the indices of the digraph by n."""
         for id in self.nodes:
             node = self.get_node_by_id(id)
             node.set_id(id + n)
@@ -61,6 +81,13 @@ class bool_circ_mx:
         self.nodes = {node.id: node for node in self.nodes.values()}
 
     def iparallel(self, args: List[OpenDigraph]) -> None:
+        """Parallel composition of the digraph with the digraphs in args. modifies self.
+
+        Parameters:
+        -----------
+        args: List[OpenDigraph]
+            The list of the digraphs to parallel compose with self.
+        """
         "A TESTER"
         for g in args:
             g.shift_indices(self.max_id - g.min_id + 1)
@@ -70,12 +97,30 @@ class bool_circ_mx:
                 self.nodes[node.id] = node
 
     def parallel(self, g: OpenDigraph) -> OpenDigraph:
+        """Parallel composition of the digraph with g and return the new graph.
+
+        Parameters:
+        -----------
+        g: OpenDigraph
+            The digraph to parallel compose with self.
+
+        Returns:
+        --------
+        OpenDigraph
+            The new digraph."""
         "A TESTER"
         output = self.copy
         output.iparallel([g])
         return output
 
     def icompose(self, g: OpenDigraph) -> None:
+        """Compose the digraph with g by modifies self.
+        
+        Parameters:
+        -----------
+        g: OpenDigraph
+            The digraph to compose with self.
+        """
         g.shift_indices(self.max_id - g.min_id + 1)
         if len(self.outputs) != len(g.inputs):
             raise Exception(f"Length of outputs of self are different from inputs of g")
@@ -92,11 +137,35 @@ class bool_circ_mx:
         self.outputs = g.outputs
 
     def compose(self, g: OpenDigraph) -> OpenDigraph:
+        """Compose the digraph with g without modifying self and return the new graph.
+        
+        Parameters:
+        -----------
+        g: OpenDigraph
+            The digraph to compose with self.
+        
+        Returns:
+        --------
+        OpenDigraph
+            The new digraph.
+        """
+
         output = self.copy
         output.icompose(g)
         return output
 
     def dfs(self, visited, node, component):
+        """Depth-first search. Updates the visited list and the component list.
+        
+        Parameters:
+        -----------
+        visited: List[bool]
+            The list of the visited nodes.
+        node: OpenDigraphNode
+            The node to start the search.
+        component: List[OpenDigraphNode]
+            The list of the nodes of the component
+        """
         if node not in visited:
             visited.add(node)
             component.append(node.id)
@@ -106,6 +175,15 @@ class bool_circ_mx:
 
     @property
     def connected_components(self):
+        """Returns the connected components of the digraph.
+        
+        Returns:
+        --------
+        nb_components: int
+            The number of the connected components.
+        output: Hashmap[id, connected_component : int]
+            The list of the connected components.
+        """
         visited = set()
         output = {}
         components = []

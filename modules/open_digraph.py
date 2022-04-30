@@ -25,25 +25,34 @@ class OpenDigraph(
         self, inputs: List[int], outputs: List[int], nodes: List[Node]
     ) -> OpenDigraph:
         """
-        inputs: int list; the ids of the input nodes
-        outputs: int list; the ids of the output nodes
-        nodes: node iter;
+        Parameters
+        ----------
+        inputs : List[int]
+            The ids of the nodes that are inputs
+        outputs : List[int]
+            The ids of the nodes that are outputs
+        nodes : List[Node]
+            The nodes of the open digraph
         """
+
 
         self.inputs = inputs
         self.outputs = outputs
         self.nodes = {node.id: node for node in nodes}
 
     def __getitem__(self, node_id) -> Node:
+        """Returns the node of id node_id in the open digraph"""
         return self.nodes[node_id]
 
     def __str__(self) -> str:
+        """Returns a string representation of the open digraph"""
         output = ""
         for node in list(self.nodes.values()):
             output += "n" + str(node.id) + " = " + str(node) + "\n"
         return output
 
     def __repr__(self) -> str:
+        """Returns a string representation of the open digraph"""
         return str(self)
 
     @classmethod
@@ -56,8 +65,25 @@ class OpenDigraph(
         cls, n: int, bound: int, inputs: int = 0, outputs: int = 0, form: str = "free"
     ) -> OpenDigraph:
         """
-        Doc
-        Bien préciser ici les options possibles pour form !
+        Returns a random open digraph with n nodes between 0 and bound and with inputs and outputs
+
+        Parameters
+        ----------
+        n : int
+            The number of nodes of the open digraph
+        bound : int
+            The maximum value of the nodes of the open digraph
+        inputs : int
+            The number of inputs of the open digraph
+        outputs : int
+            The number of outputs of the open digraph
+        form : str
+            The form of the open digraph. It can be "free", "DAG", "loop-free", "undirected" or "loop-free-undirected"
+        
+        Returns
+        -------
+        OpenDigraph
+            The random open digraph
         """
         if form == "free":
             digraph = cls.graph_from_adjacency_matrix(random_matrix(n, bound))
@@ -92,6 +118,18 @@ class OpenDigraph(
 
     @classmethod
     def graph_from_adjacency_matrix(cls, matrix: Matrix) -> OpenDigraph:
+        """ Creates an open digraph from an adjacency matrix 
+
+        Parameters
+        ----------
+        matrix : Matrix
+            The adjacency matrix of the open digraph
+        
+        Returns
+        -------
+        OpenDigraph
+            The open digraph created from the adjacency matrix        
+        """
         digraph = OpenDigraph.empty()
         n = len(matrix)
         for i in range(n):
@@ -105,6 +143,7 @@ class OpenDigraph(
 
     @classmethod
     def from_dot_file(self, path: str) -> OpenDigraph:
+        """Creates an open digraph from a dot file"""
         lines = []
         with open(path, "rt") as file:
             for line in file:
@@ -112,6 +151,7 @@ class OpenDigraph(
 
     @property
     def is_empty(self) -> bool:
+        """Returns True if the open digraph is empty"""
         return self.nodes == {}
 
     @property
@@ -181,19 +221,30 @@ class OpenDigraph(
 
     @property
     def random_op(self) -> Node:
+        """Returns a random node of the open digraph"""
         operators = list(set(self.get_node_ids) - set(self.inputs) - set(self.outputs))
         return random.choice(operators)
 
     @property
     def random_input(self) -> Node:
+        """Returns a random input node of the open digraph"""
         return random.choice(self.inputs)
 
     @property
     def random_output(self) -> Node:
+        """Returns a random output node of the open digraph"""
         return random.choice(self.outputs)
 
     def add_edge(self, src: int, tgt: int) -> None:
-        """Adds a edge from node of id src to node of id tgt"""
+        """Adds a edge from node of id src to node of id tgt
+        
+        Parameters
+        ----------
+        src : int
+            The id of the source node
+        tgt : int
+            The id of the target node
+        """
         tgt_node = self[tgt]
         src_node = self[src]
         if src in tgt_node.parents and tgt in src_node.children:
@@ -423,6 +474,21 @@ class OpenDigraph(
         return node_id
 
     def fusion(self, src: int, tgt: int, new_label: str = None) -> None:
+        """Fuses two nodes in the open digraph 
+
+        Parameters
+        ----------
+        src : int
+            The id of the node which will be fused
+        tgt : int
+            The id of the node which will be fused
+        
+        Optional parameters
+        -------------------
+        new_label : str
+            The new label of the fused node, by default None
+        """
+        
         for parent_id in self[tgt].get_parent_ids:
             self.add_edge(parent_id, src)
         for children_id in self[tgt].get_children_ids:
