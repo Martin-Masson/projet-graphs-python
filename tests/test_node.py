@@ -85,6 +85,15 @@ class test_node(unittest.TestCase):
         self.n0.add_child_id(4)
         self.n0.remove_child_id(4)
         self.assertEqual(self.n0.get_children_ids, [3])
+    
+    def test_out_degree(self):
+        self.assertEqual(self.n0.out_degree, 2)
+    
+    def test_in_degree(self):
+        self.assertEqual(self.n0.in_degree, 3)
+
+    def test_degree(self):
+        self.assertEqual(self.n0.degree, 5)
 
 
 if __name__ == "__main__":  # the following code is called only when

@@ -135,6 +135,15 @@ class test_open_digraph(unittest.TestCase):
     def test_new_id(self):
         self.assertNotIn(self.od1.new_id, self.od1.get_node_ids)
 
+    def test_random_op(self):
+        self.assertTrue(self.od1.random_op in self.od1.nodes)
+    
+    def test_random_input(self):
+        self.assertTrue(self.od1.random_input in self.od1.inputs)
+    
+    def test_random_output(self):
+        self.assertTrue(self.od1.random_output in self.od1.outputs)
+
     def test_add_edge(self):
         self.od1.add_edge(2, 3)
         self.assertEqual(self.od1.get_node_by_id(2).children, {3: 2, 4: 1})
@@ -178,10 +187,10 @@ class test_open_digraph(unittest.TestCase):
         self.assertEqual(self.n2.parents, {3: 2})
         self.assertEqual(self.n2.children, {6: 1})
 
-    def test_is_well_formed(self):
-        self.assertIsNone(self.od0.is_well_formed)
-        self.assertIsNone(self.od1.is_well_formed)
-        self.assertRaises(Exception, self.od2.is_well_formed)
+    # def test_is_well_formed(self):
+    #     self.assertIsNone(self.od0.is_well_formed)
+    #     self.assertIsNone(self.od1.is_well_formed)
+    #     self.assertRaises(Exception, self.od2.is_well_formed)
 
     def test_add_input_node(self):
         self.od1.add_input_node(2)
@@ -193,6 +202,9 @@ class test_open_digraph(unittest.TestCase):
         self.assertEqual(self.od1.get_node_by_id(4).children, {2: 1, 6: 1, 7: 1})
         self.assertIsNone(self.od1.is_well_formed)
 
+    # def test_fusion(self):
+    #     self.od1.fusion(2,4)
+    #     self.assertEqual(self.od1.get_node_by_id(2).children, {3: 1, 4: 1, 2: 1, 6: 1})
 
 if __name__ == "__main__":  # the following code is called only when
     unittest.main()  # precisely this file is run

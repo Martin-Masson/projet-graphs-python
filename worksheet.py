@@ -1,5 +1,7 @@
-from modules.open_digraph import *
-from modules.bool_circ import *
+from cgi import test
+from lib2to3.pgen2.token import OP
+from modules.node import Node
+from modules.open_digraph import OpenDigraph
 
 i0 = Node(10, "", {}, {0: 1})
 i1 = Node(11, "", {}, {2: 1})
@@ -21,5 +23,6 @@ test_graph = OpenDigraph(
     [10, 11], [12], [i0, i1, n0, n1, n2, n3, n4, n5, n6, n7, n8, n9, o0]
 )
 
-random_circ = BoolCirc.random(10, 1, inputs=1, outputs=1)
-random_circ.display()
+random_circ = OpenDigraph.random(10, 1, inputs=1, outputs=1)
+test_graph.display(verbose=True)
+

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+import string
 
 from modules.open_digraph import *
 from modules.bool_circ_mx.binary_mx import *
