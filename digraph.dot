@@ -1,29 +1,7 @@
 digraph G {
-    v10 [color=blue];
-    v10 [label=" id=10"];
-    v10 -> v0;
-    v0 [label=" id=0"];
-    v0 -> v3;
-    v0 -> v4;
-    v1 [label=" id=1"];
-    v1 -> v4;
-    v1 -> v5;
-    v1 -> v8;
-    v3 [label=" id=3"];
-    v3 -> v5;
-    v3 -> v6;
-    v3 -> v7;
-    v4 [label=" id=4"];
-    v4 -> v6;
-    v5 [label=" id=5"];
-    v5 -> v7;
-    v6 [label=" id=6"];
-    v6 -> v8;
-    v6 -> v9;
-    v7 [label=" id=7"];
-    v7 -> v12;
-    v8 [label=" id=8"];
-    v9 [label=" id=9"];
-    v12 [color=red];
-    v12 [label=" id=12"];
+    v0 [color=blue];
+    v0 [label="v0 id=0"];
+    v0 -> v1;
+    v1 [color=red];
+    v1 [label="v1 id=1"];
 }

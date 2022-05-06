@@ -2,7 +2,6 @@ from __future__ import annotations
 from typing import Dict, List, Tuple
 
 from math import log2
-from modules.bool_circ import BoolCirc
 from modules.open_digraph import *
 
 

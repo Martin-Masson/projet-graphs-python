@@ -3,8 +3,9 @@ from __future__ import annotations
 import random
 import string
 
+
 from modules.open_digraph import *
-from modules.bool_circ_mx.binary_mx import *
+from modules.bool_circ_mx.binary_mx import binary_mx
 
 
 class BoolCirc(OpenDigraph, binary_mx):

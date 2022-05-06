@@ -2,6 +2,7 @@ from cgi import test
 from lib2to3.pgen2.token import OP
 from modules.node import Node
 from modules.open_digraph import OpenDigraph
+from modules.bool_circ import *
 
 i0 = Node(10, "", {}, {0: 1})
 i1 = Node(11, "", {}, {2: 1})
