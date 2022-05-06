@@ -8,13 +8,13 @@ from modules.open_digraph import *
 class binary_mx:
     @classmethod
     def construct_op(cls, bits: str) -> BoolCirc:
-        """Constructs a boolean circuit from a binary string. 
-        
+        """Constructs a boolean circuit from a binary string.
+
         Parameters
         ----------
         bits: str
             A binary string.
-        
+
         Returns
         -------
         circ: BoolCirc

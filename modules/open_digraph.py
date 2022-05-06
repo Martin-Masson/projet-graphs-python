@@ -35,7 +35,6 @@ class OpenDigraph(
             The nodes of the open digraph
         """
 
-
         self.inputs = inputs
         self.outputs = outputs
         self.nodes = {node.id: node for node in nodes}
@@ -79,7 +78,7 @@ class OpenDigraph(
             The number of outputs of the open digraph
         form : str
             The form of the open digraph. It can be "free", "DAG", "loop-free", "undirected" or "loop-free-undirected"
-        
+
         Returns
         -------
         OpenDigraph
@@ -118,17 +117,17 @@ class OpenDigraph(
 
     @classmethod
     def graph_from_adjacency_matrix(cls, matrix: Matrix) -> OpenDigraph:
-        """ Creates an open digraph from an adjacency matrix 
+        """Creates an open digraph from an adjacency matrix
 
         Parameters
         ----------
         matrix : Matrix
             The adjacency matrix of the open digraph
-        
+
         Returns
         -------
         OpenDigraph
-            The open digraph created from the adjacency matrix        
+            The open digraph created from the adjacency matrix
         """
         digraph = OpenDigraph.empty()
         n = len(matrix)
@@ -237,7 +236,7 @@ class OpenDigraph(
 
     def add_edge(self, src: int, tgt: int) -> None:
         """Adds a edge from node of id src to node of id tgt
-        
+
         Parameters
         ----------
         src : int
@@ -423,7 +422,7 @@ class OpenDigraph(
                         f"Node {child_id} isn't a child of node {node_id} or their multiplicity are different"
                     )
 
-    def add_input_node(self, child_id: int) -> int:
+    def add_input_node(self, child_id: int, label: str = "") -> int:
         # CHANGER LA DOC on return un id maintenant
         """Adds a new input node to the open digraph
 
@@ -442,13 +441,13 @@ class OpenDigraph(
         if not (child_id in self.nodes):
             raise Exception(f"the target node of id {child_id} isn't in the graph")
         node_id = self.new_id
-        new_node = Node(node_id, "", {}, {child_id: 1})
+        new_node = Node(node_id, label, {}, {child_id: 1})
         self.nodes[node_id] = new_node
         self.add_input_id(node_id)
         self.add_edge(node_id, child_id)
         return node_id
 
-    def add_output_node(self, parent_id: int) -> int:
+    def add_output_node(self, parent_id: int, label: str = "") -> int:
         # PAREIL CHANGER LA DOC
         """Adds a new output node to the open digraph
 
@@ -467,14 +466,14 @@ class OpenDigraph(
         if not (parent_id in self.nodes):
             raise Exception(f"the target node of id {parent_id} isn't in the graph")
         node_id = self.new_id
-        new_node = Node(node_id, "", {parent_id: 1}, {})
+        new_node = Node(node_id, label, {parent_id: 1}, {})
         self.nodes[node_id] = new_node
         self.add_output_id(node_id)
         self.add_edge(parent_id, node_id)
         return node_id
 
     def fusion(self, src: int, tgt: int, new_label: str = None) -> None:
-        """Fuses two nodes in the open digraph 
+        """Fuses two nodes in the open digraph
 
         Parameters
         ----------
@@ -482,13 +481,13 @@ class OpenDigraph(
             The id of the node which will be fused
         tgt : int
             The id of the node which will be fused
-        
+
         Optional parameters
         -------------------
         new_label : str
             The new label of the fused node, by default None
         """
-        
+
         for parent_id in self[tgt].get_parent_ids:
             self.add_edge(parent_id, src)
         for children_id in self[tgt].get_children_ids:

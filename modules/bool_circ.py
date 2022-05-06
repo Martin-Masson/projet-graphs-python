@@ -6,11 +6,12 @@ import string
 
 from modules.open_digraph import *
 from modules.bool_circ_mx.binary_mx import binary_mx
+from modules.bool_circ_mx.evaluation_mx import evaluation_mx
 
 
-class BoolCirc(OpenDigraph, binary_mx):
+class BoolCirc(OpenDigraph, binary_mx, evaluation_mx):
     def __init__(self, g: OpenDigraph) -> BoolCirc:
-        """ Constructor.
+        """Constructor.
 
         Parameters
         ----------
@@ -18,22 +19,20 @@ class BoolCirc(OpenDigraph, binary_mx):
             Graphe à transformer en matrice booléenne circulaire.
         """
         if isinstance(g, OpenDigraph):
-            if not (g.is_well_formed):
-                """
+            if g.is_well_formed:  # Returns None if the graph is well formed
                 raise Exception(
                     f"Invalid argument: the argument isn't a well formed boolean circuit"
                 )
-                """
-                super().__init__(g.inputs, g.outputs, g.nodes)
+                super().__init__(g.inputs, g.outputs, g.nodes.values())
             else:
-                super().__init__(g.inputs, g.outputs, g.nodes)
+                super().__init__(g.inputs, g.outputs, g.nodes.values())
         else:
             raise Exception(f"Invalid argument: argument must be an OpenDigraph")
 
     @property
     def is_well_formed(self) -> None:
         """Returns True if the digraph is well formed.
-        
+
         Raises:
         ------
         Exception:
@@ -48,10 +47,17 @@ class BoolCirc(OpenDigraph, binary_mx):
         for node_id in self.nodes:
             node = self.get_node_by_id(node_id)
             label = node.get_label
+
             if not (label in valid_labels):
                 raise Exception(
                     f"The label of node {node_id} is invalid. Valid labels are {valid_labels}"
                 )
+
+            if label == "0" or label == "1":
+                if node.in_degree != 0 or node.out_degree != 1:
+                    raise Exception(
+                        f"primitive node {node_id} must must have an in degree of exactly 0 and out degree of exactly 1"
+                    )
 
             if label == "":
                 if node.in_degree != 1:
@@ -93,19 +99,19 @@ class BoolCirc(OpenDigraph, binary_mx):
             The number of nodes of the circuit.
         bound: int
             The maximum value of the nodes.
-        
+
         Optional parameters:
         ---------------------
         inputs: int
             The number of inputs of the circuit.
         outputs: int
             The number of outputs of the circuit.
-        
+
         Returns:
         --------
         circ : BoolCirc
             A random boolean circuit.
-            
+
         """
         circ = OpenDigraph.random(n, bound, form="DAG")
         for node in circ.get_nodes:
@@ -157,7 +163,45 @@ class BoolCirc(OpenDigraph, binary_mx):
                     for child_id in children:
                         circ.remove_parallel_edges((node.get_id, child_id))
 
-        return circ
+        return BoolCirc(circ)
+
+    @classmethod
+    def adder_0(cls) -> BoolCirc:
+        a = Node(9, "", {}, {0: 1})
+        b = Node(10, "", {}, {1: 1})
+        c = Node(11, "", {}, {4: 1})
+
+        n0 = Node(0, "", {9: 1}, {2: 1, 5: 1})
+        n1 = Node(1, "", {10: 1}, {2: 1, 5: 1})
+        n2 = Node(2, "^", {0: 1, 1: 1}, {3: 1})
+        n3 = Node(3, "", {2: 1}, {6: 1, 7: 1})
+        n4 = Node(4, "", {11: 1}, {6: 1, 7: 1})
+        n5 = Node(5, "&", {0: 1, 1: 1}, {8: 1})
+        n6 = Node(6, "&", {3: 1, 4: 1}, {8: 1})
+        n7 = Node(7, "^", {3: 1, 4: 1}, {13: 1})
+        n8 = Node(8, "|", {5: 1, 6: 1}, {12: 1})
+
+        co = Node(12, "", {8: 1}, {})
+        r = Node(13, "", {7: 1}, {})
+
+        return BoolCirc(
+            OpenDigraph(
+                [9, 10, 11],
+                [12, 13],
+                [a, b, c, n0, n1, n2, n3, n4, n5, n6, n7, n8, co, r],
+            )
+        )
+
+    @classmethod
+    def adder(cls, n: int) -> BoolCirc:
+        if n == 0:
+            return BoolCirc.adder_0()
+        else:
+            return
+
+    @classmethod
+    def half_adder(cls, n: int) -> BoolCirc:
+        return
 
 
 def parse_parenthesis(*args: string) -> BoolCirc:
