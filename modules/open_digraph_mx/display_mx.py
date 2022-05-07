@@ -3,7 +3,7 @@ import os
 
 class display_mx:
     def save_sa_dot_file(self, path: str, verbose: bool = False) -> None:
-        """ Saves the digraph in a dot file. 
+        """Saves the digraph in a dot file.
         Parameters:
         -----------
         path: str
@@ -35,10 +35,10 @@ class display_mx:
             file.write("}")
 
     def display(self, verbose: bool = False) -> None:
-        """ Displays the digraph
+        """Displays the digraph
         Parameters:
         -----------
-        verbose: bool 
+        verbose: bool
             If True, displays the label of each node.
         """
 

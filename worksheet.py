@@ -29,6 +29,6 @@ adder_0 = BoolCirc(
     )
 )
 
-# random_circ = OpenDigraph.random(10, 1, inputs=2, outputs=2)
+# BoolCirc.adder(2).display(verbose=True)
 
-BoolCirc.half_adder(3).display(verbose=True)
+OpenDigraph.from_dot_file("digraph.dot").display()

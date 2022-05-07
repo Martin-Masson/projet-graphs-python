@@ -141,12 +141,34 @@ class OpenDigraph(
         return digraph
 
     @classmethod
-    def from_dot_file(self, path: str) -> OpenDigraph:
+    def from_dot_file(cls, path: str) -> OpenDigraph:
         """Creates an open digraph from a dot file"""
-        lines = []
-        with open(path, "rt") as file:
-            for line in file:
-                lines.append(line)
+        graph = cls.empty()
+        with open(path, "r") as file:
+            lines = file.readlines()
+
+            for line in lines[1:]:
+                if "label" in line:
+                    identity = int(line[line.find("v") + 1 : line.find("[") - 1])
+                    label = line[line.find("=") + 2 : line.find("]") - 1]
+                    node = Node(identity, label, {}, {})
+                    graph.nodes[node.id] = node
+
+                if "color=blue" in line:
+                    input_id = int(line[line.find("v") + 1 : line.find("[") - 1])
+                    graph.add_input_id(input_id)
+
+                if "color=red" in line:
+                    output_id = int(line[line.find("v") + 1 : line.find("[") - 1])
+                    graph.add_output_id(output_id)
+
+            for line in lines[1:]:
+                if "->" in line:
+                    src = int(line[line.find("v") + 1 : line.find("->") - 1])
+                    tgt = int(line[line.find("->") + 4 : line.find(";")])
+                    graph.add_edge(src, tgt)
+
+        return graph
 
     @property
     def is_empty(self) -> bool:
