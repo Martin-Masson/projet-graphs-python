@@ -195,13 +195,45 @@ class BoolCirc(OpenDigraph, binary_mx, evaluation_mx):
     @classmethod
     def adder(cls, n: int) -> BoolCirc:
         if n == 0:
-            return BoolCirc.adder_0()
+            return cls.adder_0().copy
         else:
-            return
+            c1 = cls.adder(n - 1)
+            c2 = cls.adder(n - 1)
+
+            carry_out = None
+            for node_id in c1.get_output_ids:
+                out_node = c1[node_id]
+                if c1[out_node.get_parent_ids[0]].get_label == "|":
+                    carry_out = out_node
+
+            carry_in = None
+            for node_id in c2.get_input_ids:
+                in_node = c2[node_id]
+                cp_node = c2[in_node.get_children_ids[0]]
+                for child_id in cp_node.get_children_ids:
+                    child_node = c2[child_id]
+                    if child_node.get_children_ids[0] in c2.outputs:
+                        carry_in = in_node
+
+            c2.shift_indices(c1.max_id - c2.min_id + 1)
+            for node in c2.get_nodes:
+                c1.nodes[node.id] = node
+
+            c1.add_edge(carry_out.get_parent_ids[0], carry_in.get_children_ids[0])
+            c1.remove_node_by_id(carry_out.get_id, carry_in.get_id)
+
+            c1.inputs += c2.inputs
+            c1.inputs.remove(carry_in.get_id)
+            c1.outputs += c2.outputs
+
+            return c1
 
     @classmethod
     def half_adder(cls, n: int) -> BoolCirc:
-        return
+        circ = cls.adder(n)
+        circ.nodes[11].set_label("0")
+        circ.inputs.remove(11)
+        return circ
 
 
 def parse_parenthesis(*args: string) -> BoolCirc:
