@@ -89,7 +89,7 @@ class evaluation_mx:
     def evaluate(self) -> None:
         # 1) on simplifie les inputs pour pouvoir utiliser le tri
         # topologique
-        for input_id in self.get_input_ids:
+        for input_id in self.get_input_ids.copy():
             bit = self[input_id]
             op = self[bit.get_children_ids[0]]
             self.simplify(input_id, op.get_id, op.get_label)
@@ -103,9 +103,11 @@ class evaluation_mx:
             for node_id in top_layer:
                 node = self[node_id]
                 node_label = node.get_label
-                if node_label != 0 or node_label != 1:
+                if node_label != "0" and node_label != "1":
                     self.simplify(None, node_id, "n")
                 else:
                     child = self[node.get_children_ids[0]]
-                    self.simplify(node_id, child_id, child.get_label)
+                    child_id = child.get_id
+                    if not (child_id in self.get_output_ids):
+                        self.simplify(node_id, child_id, child.get_label)
             layers = self.tri_topologique
