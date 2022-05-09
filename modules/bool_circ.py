@@ -235,6 +235,14 @@ class BoolCirc(OpenDigraph, binary_mx, evaluation_mx):
         circ.inputs.remove(11)
         return circ
 
+    @classmethod
+    def encoder(cls) -> BoolCirc:
+        return BoolCirc(OpenDigraph.from_dot_file("encoder.dot"))
+
+    @classmethod
+    def decoder(cls) -> BoolCirc:
+        return BoolCirc(OpenDigraph.from_dot_file("decoder.dot"))
+
 
 def parse_parenthesis(*args: string) -> BoolCirc:
     """Returns a boolean circuit from a string.
